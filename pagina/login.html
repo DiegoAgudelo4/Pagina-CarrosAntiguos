@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title id="title">Iniciar sesion</title>
+  <link rel="stylesheet" href="css/styleLogin.css" />
+  <link rel="shortcut icon" href="icons/cabriolet.png" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <!-- Default theme -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+</head>
+
+<body>
+  <div class="fadeIn first">
+    <img src="img/CarrosAntiguosStonks_Encabezado.png" id="head-image" alt="User Icon" />
+  </div>
+  <div>
+    <div class="wrapper fadeInDown">
+      <div id="formContent">
+        <!-- Tabs Titles -->
+        <h2 class="active">Iniciar sesion</h2>
+        <h2 class="inactive underlineHover">
+          <a href="Registro.html" class="registro"> Registrarse</a>
+        </h2>
+
+        <!-- Login Form -->
+        <form id="formulario">
+          <input type="text" id="CedulaLogin" pattern="[1-2]{1}[0-9]{9}" class="fadeIn second" name="login"
+            maxlength="10" placeholder="Cedula" required />
+          <input type="button" class="fadeIn fourth " onclick="validarLogin()" value="enviar">
+
+        </form>
+      </div>
+      <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+      <script src="js/codeLogin.js"></script>
+    </div>
+  </div>
+</body>
+
+</html>

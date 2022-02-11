@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title id="title">Iniciar sesion</title>
+  <link rel="stylesheet" href="css/styleLogin.css" />
+  <link rel="shortcut icon" href="icons/cabriolet.png" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <!-- Default theme -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+</head>
+
+<body>
+  <div class="fadeIn first">
+    <img src="img/CarrosAntiguosStonks_Encabezado.png" id="head-image" alt="User Icon" />
+  </div>
+  <div class="body">
+    <div class="wrapper fadeInDown">
+      <div id="formContent">
+        <!-- Tabs Titles -->
+        <h2 class="inactive underlineHover">
+          <a href="login.html" class="iniciarSesion">Iniciar sesion</a>
+        </h2>
+        <h2 class="active">Registrarse</h2>
+        <!-- Login Form -->
+        <form id="form">
+          <input
+            type="text"
+            id="CedulaR"
+            class="fadeIn second"
+            name="login"
+            pattern="[1-2]{1}[0-9]{9}"
+            maxlength="10"
+            placeholder="Cedula"
+            required
+          />
+          <input
+            type="text"
+            id="NombreR"
+            class="fadeIn third"
+            name="login"
+            pattern="[a-zA-Z\s]{3,30}"
+            placeholder="Nombre"
+            required
+          />
+          <input
+            type="text"
+            id="ApellidoR"
+            class="fadeIn third"
+            name="login"
+            pattern="[a-zA-Z\s]{3,30}"
+            placeholder="Apellido"
+            required
+          />
+          <input
+            type="text"
+            id="DireccionR"
+            class="fadeIn third"
+            maxlength="30"
+            minlength="3"
+            name="login"
+            placeholder="Direccion"
+            required
+          />
+          <input
+            type="text"
+            id="TelefonoR"
+            class="fadeIn third"
+            name="login"
+            pattern="^[0-9]{6}"
+            maxlength="6"
+            placeholder="Telefono"
+            required
+          />
+          <input type="button" class="fadeIn fourth "  onclick="validarRegistro()" value="Guardar" >
+        </form>
+      </div>
+    </div>
+    <!-- JavaScript -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+    <script src="js/codeRegistro.js"></script>
+  </div>
+</body>
+
+</html>
