@@ -29,6 +29,7 @@
         <h2 class="active">Registrarse</h2>
         <!-- Login Form -->
         <form id="form">
+          <label for="CedulaRegistro" class="">Cedula</label><br>
           <input
             type="text"
             id="CedulaR"
@@ -36,27 +37,26 @@
             name="login"
             pattern="[1-2]{1}[0-9]{9}"
             maxlength="10"
-            placeholder="Cedula"
             required
-          />
+          /> <label for="NombreRegistro" class="">Nombre</label><br>
           <input
             type="text"
             id="NombreR"
             class="fadeIn third"
             name="login"
             pattern="[a-zA-Z\s]{3,30}"
-            placeholder="Nombre"
+      
             required
-          />
+          /> <label for="ApellidoRegistro" >Apellido</label><br>
           <input
             type="text"
             id="ApellidoR"
             class="fadeIn third"
             name="login"
             pattern="[a-zA-Z\s]{3,30}"
-            placeholder="Apellido"
+            
             required
-          />
+          /><label for="DireccionRegistro" >Direccion</label><br>
           <input
             type="text"
             id="DireccionR"
@@ -64,9 +64,8 @@
             maxlength="30"
             minlength="3"
             name="login"
-            placeholder="Direccion"
             required
-          />
+          /><label for="TelefonoRegistro" >Telefono</label><br>
           <input
             type="text"
             id="TelefonoR"
@@ -74,7 +73,7 @@
             name="login"
             pattern="^[0-9]{6}"
             maxlength="6"
-            placeholder="Telefono"
+         
             required
           />
           <input type="button" class="fadeIn fourth "  onclick="validarRegistro()" value="Guardar" >
@@ -87,5 +86,4 @@
     <script src="js/codeRegistro.js"></script>
   </div>
 </body>
-
 </html>

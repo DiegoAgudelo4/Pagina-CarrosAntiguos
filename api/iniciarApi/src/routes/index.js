@@ -18,10 +18,11 @@ router.use(function(req, res, next) {
     next();
   });
 
-const { getCarros, getEventoByPlaca, createCarro, updateCarro, deleteCarro,
-        getClientes,createCliente,updateCliente, deleteCliente, getCompras, createCompra, deleteCompra } = require('../controllers/index.controller');
+const { getCarrosQuitandoCompra, getEventoByPlaca, createCarro, updateCarro, deleteCarro,
+        getClientes,createCliente,updateCliente, deleteCliente, getCompras, createCompra, deleteCompra, getCarros} = require('../controllers/index.controller');
 
-router.get('/carros', getCarros);
+router.get('/carros', getCarrosQuitandoCompra);
+router.get('/carros/venta', getCarros)
 router.get('/carros/evento/:placa', getEventoByPlaca);
 router.post('/carros/crear', createCarro);
 router.put('/carros/update/:placa', updateCarro)

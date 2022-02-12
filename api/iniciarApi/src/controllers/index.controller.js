@@ -11,11 +11,32 @@ const pool = new Pool({
 });
 const urlMongo = "mongodb://localhost:27017/"; //direccion por defecto de mongo
 
-//tabla de carros
 const getCarros = async (req, res, next) => {
+  let response = await pool.query("SELECT * from CARRO"); //hace la consulta en postgres
+  console.log("**getCarrosPostgres**\n Consulta exitosa");
+  res.json(response.rows); //responde con un json (postgres)
+  next();
+  //mongo
+  MongoClient.connect(urlMongo, function (err, client) {
+    //se conecta a mongo
+    var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
+    cursor
+      .collection("CARROS")
+      .find()
+      .forEach((value) => {
+        //busca en la coleccion elegida por los parametros que quiero
+        console.log(value); //muestra los resultados en la consola (mongo)
+      });
+  });
+  console.log("**getCarrosMongo**\n Consulta finalizada correctamente");
+}
+
+//tabla de carros
+const getCarrosQuitandoCompra = async (req, res, next) => {
   try {
     //postgres
-    let response = await pool.query("SELECT * FROM carro"); //hace la consulta en postgres
+    let usuario = req.params.id_cliente;
+    let response = await pool.query("SELECT ca.ID_PLACA, ca.MARCA, ca.MODELO, ca.COLOR, ca.VALOR from carro ca except select ca.ID_PLACA, ca.MARCA, ca.MODELO, ca.COLOR, ca.VALOR from carro ca inner join compra co on ca.id_placa = co.id_placa"); //hace la consulta en postgres
     console.log("**getCarrosPostgres**\n Consulta exitosa");
     res.json(response.rows); //responde con un json (postgres)
     next();
@@ -83,6 +104,7 @@ const createCarro = async (req, res) => {
       modelo: modelo,
       color: color,
       valor: valor,
+      comprado: false
     });
   });
   console.log("**mongo**\n Datos creados correctamente");
@@ -266,8 +288,8 @@ const deleteCliente = async (req, res) => {
   const id_cliente = req.params.cedula; //obtenemos la placa que nos pasan por parametro http
   console.log("***Delete Carro***\n Placa: " + req.params.cedula);
   await pool.query("DELETE FROM cliente where id_cliente = $1", [id_cliente]); //realizamos la respectiva consulta
-  res.json(`Carro ${id_cliente} deleted Successfully`);
-  res.json(undefined);
+  //res.json(`Carro ${id_cliente} deleted Successfully`);
+  //res.json(undefined);
   //mongo
   MongoClient.connect(urlMongo, function (err, client) {
     //se conecta a mongo
@@ -297,7 +319,7 @@ const getCompras = async (req, res, next) => {
       var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
       cursor
         .collection("COMPRAS")
-        .find({ ID_Cedula: id_cliente })
+        .find({ ID_Cedula: id_cliente, comprado: false })
         .forEach((value) => {
           //busca en la coleccion elegida por los parametros que quiero
           console.log(value); //muestra los resultados en la consola (mongo)
@@ -348,13 +370,14 @@ const createCompra = async (req, res) => {
       ID_CLIENTE: ID_CLIENTE,
       ID_PLACA: ID_PLACA,
     });
+    cursor.collection("CARROS").updateOne({ID_PLACA: ID_PLACA},{$set:{comprado: true}});
   });
   console.log("**mongo**\n Datos creados correctamente");
 };
 const deleteCompra = async (req, res) => {
+  console.log("***Delete Carro***\n ID: " + req.params.id_compra);
   //postgres
   const id_compra = req.params.id_compra; //obtenemos la placa que nos pasan por parametro http
-  console.log("***Delete Carro***\n ID: " + req.params.id_compra);
   await pool.query("DELETE FROM COMPRA where ID_COMPRA = $1", [id_compra]); //realizamos la respectiva consulta
   //res.json(`Carro ${id_compra} deleted Successfully`);
   //res.json(undefined);
@@ -362,14 +385,14 @@ const deleteCompra = async (req, res) => {
   MongoClient.connect(urlMongo, function (err, client) {
     //se conecta a mongo
     var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
-    cursor.collection("COMPRAS").deleteOne({ ID_COMPRA: id_compra }); //borramos el registro
-    console.log("Borrado correctamente de mongoDB")
+    cursor.collection("COMPRAS").deleteOne({ ID_COMPRA: parseInt(id_compra) }); //borramos el registro  
   });
 };
 
 //fin tabla compras
 
 module.exports = {
+  getCarrosQuitandoCompra,
   getCarros,
   getEventoByPlaca,
   createCarro,

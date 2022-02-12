@@ -286,3 +286,6 @@ input:valid {
   border: 2px solid green;
 }
 
+label{
+  text-align: left;
+}

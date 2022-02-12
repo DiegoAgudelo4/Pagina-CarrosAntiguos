@@ -39,7 +39,6 @@ let mostrar = (compra) => {
                                 <td>${compra.id_placa}</td>
                                 <td class="text-center"><a class="btnBorrar btn btn-danger">Borrar</a></td>
                            </tr>
-  
                         `;
     });
     contenedor.innerHTML = resultados;
@@ -83,8 +82,7 @@ on(document, "click", ".btnBorrar", (e) => {
         //ingresamos la direccion de la peticion
         method: "DELETE", //seleccionamos el metodo
       })
-        .then((response) => response.json())
-        .then(() => location.reload()); //recargamos la pagina
+        location.reload();
     },
     function () {
       alertify.error("Cancel");

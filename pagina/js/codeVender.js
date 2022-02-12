@@ -3,8 +3,8 @@ let url = "http://localhost:3000";
 let contenedor = document.querySelector("tbody");
 let resultados = "";
 
-function enviarForm(direccion) {
-  document.getElementById("input").value=usuario;
+function enviarForm(direccion) { //envía la cedula de la persona que está iniciada
+  document.getElementById("input").value = usuario;
   console.log("lo que se va a enviar :" + document.getElementById("input").value)
   document
     .querySelector("form")
@@ -12,27 +12,15 @@ function enviarForm(direccion) {
   document.getElementById("formulario").submit();
 }
 
-let modalCarros = new bootstrap.Modal(document.getElementById("modalCarros"));
-let formCarros = document.querySelector("form");
-let id_placa = document.getElementById("ID_PLACA");
-let marca = document.getElementById("MARCA");
-let modelo = document.getElementById("MODELO");
-let color = document.getElementById("COLOR");
-let valor = document.getElementById("VALOR");
+var modalCarros = new bootstrap.Modal(document.getElementById("modalCarros"));
+var formCarros = document.querySelector("form");
+var id_placa = document.getElementById("ID_PLACA");
+var marca = document.getElementById("MARCA");
+var modelo = document.getElementById("MODELO");
+var color = document.getElementById("COLOR");
+var valor = document.getElementById("VALOR");
 var opcion = "";
 var usuario = "";
-
-
-btnCrearCarro.addEventListener("click", () => {
-  id_placa.value = "";
-  marca.value = "";
-  modelo.value = "";
-  color.value = "";
-  valor.value = "";
-  quitarReadOnly("ID_PLACA");
-  modalCarros.show();
-  opcion = "crear";
-});
 
 //funcion para mostrar los resultados
 let mostrar = (carros) => {
@@ -58,9 +46,20 @@ function numeroConComas(x) {
 function removerComas(x) {
   return x.replace(/,/g, "");
 }
+btnCrearCarro.addEventListener("click", () => {
+  id_placa.value = "";
+  marca.value = "";
+  modelo.value = "";
+  color.value = "";
+  valor.value = "";
+  quitarReadOnly("ID_PLACA");
+  modalCarros.show();
+  opcion = "crear";
+});
+
 
 //Procedimiento Mostrar
-fetch(url + "/carros") //siempre va hacer esto de primero
+fetch(url + "/carros/venta") //siempre va hacer esto de primero
   .then((response) => response.json()) //recibimos un formato json
   .then((data) => mostrar(data)) //lo enviamos a  la funcion mostrar
   .catch((error) => console.log(error));
@@ -122,30 +121,86 @@ function quitarReadOnly(id) {
   $("#" + id).removeClass("readOnly");
 }
 
+
+function validarRegistro() {
+  console.log("validando " + id_placa.value)
+  if (!id_placa.value.match(/[a-zA-Z]{3}[0-9]{3}$/)) {
+    alertify.error("Llene correctamente el campo placa");
+    return;
+  }
+  if (!marca.value.match(/[a-zA-Z\s]{3,30}$/)) {
+    alertify.error("Llene correctamente el campo Marca");
+    return;
+  }
+  if (!modelo.value.match(/[a-zA-Z0-9\s]{3,30}$/)) {
+    alertify.error("Llene correctamente el campo Modelo");
+    return;
+  }
+  if (color.value === "") {
+    alertify.error("Llene correctamente el campo Color");
+    return;
+  }
+  if (!valor.value.match(/^[0-9]+$/)) {
+    alertify.error("Llene correctamente el campo Valor");
+    return;
+  }
+  console.log("entró a validar en el Registro")
+  console.log("validado placa " + id_placa.value + " marca " + marca.value + " Modelo " + modelo.value + " color " + color.value + " valor " + valor.value);
+  fetch(url + "/carros/venta") //siempre va hacer esto de primero
+    .then((response) => response.json()) //recibimos un formato json
+    .then((data) => mostrarC(data))
+    .catch((error) => console.log("error en fetch: " + error));
+}
+let mostrarC = (carros) => {
+  var existe = false;
+  console.log("verificando placa '" + id_placa.value + "'");
+  carros.forEach((carros) => {
+    console.log(
+      "placa: " + carros.id_placa + "    placa a validar: " + id_placa.value
+    );
+    if (id_placa.value == carros.id_placa) {
+      alertify.error("El carro ya existe en el sistema")
+      existe = true;
+      return;
+    }
+  });
+  if (!existe) {
+    guardarCarroNuevo();
+  }
+};
+
+function guardarCarroNuevo() {
+  console.log("Guardando " + id_placa.value + " marca " + marca.value + " Modelo " + modelo.value + " color " + color.value + " valor " + valor.value);
+  fetch(url + "/carros/crear", { //ingresamos la direccion de la peticion
+    method: "POST", //elegimos el metodo
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ //enviamos un body tipo json con los datos que queremos crear
+      id_placa: id_placa.value,
+      marca: marca.value,
+      modelo: modelo.value,
+      color: color.value,
+      valor: parseInt(valor.value),
+    })
+  }).catch((error) => console.log(error));
+  alertify.confirm("Completado", "Carro publicado correctamente", function () {
+    modalCarros.hide();
+    location.reload();
+  }, function () {
+    modalCarros.hide();
+    location.reload();
+  });
+
+}
+
 //Procedimiento para Crear y Editar
 function show() {
   console.log("submit sucessful");
   if (opcion == "crear") {
-    //verificamos que se seleccionó crear
-    console.log("OPCION CREAR");
-    fetch(url + "/carros/crear", {
-      //ingresamos la direccion de la peticion
-      method: "POST", //elegimos el metodo
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        //enviamos un body tipo json con los datos que queremos crear
-        id_placa: id_placa.value,
-        marca: marca.value,
-        modelo: modelo.value,
-        color: color.value,
-        valor: parseInt(valor.value), //necesario?
-      }),
-    })
-      .then((res) => res.json())
-      .then(() => location.reload()); //recargamos la pagina
-    modalCarros.remove();
+    console.log("opcion Crear")
+    validarRegistro();
+    return;
   }
   if (opcion == "editar") {
     //si no es crear, es editar, pero por si las moscas confirmamos
@@ -168,9 +223,12 @@ function show() {
       }),
     })
       .then((response) => response.json())
-      .then(() => cargarCarros());
-    modalCarros.hide();
+      .then(() => finalizarUpdate());
   }
+}
+function finalizarUpdate() {
+  modalCarros.hide();
+  location.reload();
 }
 //fin tabla carros************************************************************************************************************
 

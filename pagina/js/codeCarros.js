@@ -3,8 +3,10 @@ let url = "http://localhost:3000";
 let contenedor = document.querySelector("tbody");
 let resultados = "";
 
+
+
 function enviarForm(direccion) {
-  document.getElementById("input").value=usuario;
+  document.getElementById("input").value = usuario;
   console.log("lo que se va a enviar :" + document.getElementById("input").value)
   document
     .querySelector("form")
@@ -22,21 +24,28 @@ let valor = document.getElementById("VALOR");
 var opcion = "";
 var usuario = "";
 
+window.onload = getCedulaURL();
+function getCedulaURL() {
+  usuario = new URLSearchParams(window.location.search).get('login');
+  document.getElementById("idCedula").innerText = "ID: " + usuario;
+}
 //funcion para mostrar los resultados
 let mostrar = (carros) => {
   //recibimos los datos
+  console.log("Carros: " + carros)
   carros.forEach((carros) => {
-    //para cada documento, hacer esto || creamos la estructura de la fina con sus datos
+    //para cada documento, hacer esto || creamos la estructura de la fina con sus datos 
     resultados += `<tr> 
-                            <td>${carros.id_placa}</td>
-                            <td>${carros.marca}</td>
-                            <td>${carros.modelo}</td>
-                            <td>${carros.color}</td>
-                            <td>${numeroConComas(carros.valor)}</td>
-                            <td class="text-center"><a class="btnComprar btn btn-primary">Comprar</a></td>
-                       </tr>
-                    `;
-  });
+        <td>${carros.id_placa}</td>
+        <td>${carros.marca}</td>
+        <td>${carros.modelo}</td>
+        <td>${carros.color}</td>
+        <td>${numeroConComas(carros.valor)}</td>
+        <td class="text-center"><a class="btnComprar btn btn-primary">Comprar</a></td>
+   </tr>
+`;
+  })
+  //lo enviamos a  la funcion mostrar
   contenedor.innerHTML = resultados;
 };
 //pone comas
@@ -114,35 +123,41 @@ function quitarReadOnly(id) {
 }
 
 
-function comprar(){
-  var aleatorio = Math.floor(Math.random() *(900000-100)+100)
-   //verificamos que se seleccionó crear
-   console.log("OPCION CREAR Carro" +valor.value);
-   let date=new Date()
-   console.log("fecha: "+date.toISOString())
-   fetch(url + "/compras/crear", {
-     //ingresamos la direccion de la peticion
-     method: "POST", //elegimos el metodo
-     headers: {
-       "Content-Type": "application/json",
-     },
-     body: JSON.stringify({
-       //enviamos un body tipo json con los datos que queremos crear
-       ID_COMPRA : aleatorio,
-       FEC_COMP: date.toISOString(),
-       VALOR_COMP: valor.value,
-       ID_CLIENTE: usuario,
-       ID_PLACA: id_placa.value,
-     }),
-   })
-     .then((res) => res.json())
-     .then(() => confirmar()); //recargamos la pagina
-   
+function comprar() {
+  var aleatorio = Math.floor(Math.random() * (900000 - 100) + 100)
+  //verificamos que se seleccionó crear
+  console.log("OPCION CREAR Carro" + valor.value);
+  let date = new Date()
+  console.log("fecha: " + date.toISOString())
+  fetch(url + "/compras/crear", {
+    //ingresamos la direccion de la peticion
+    method: "POST", //elegimos el metodo
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      //enviamos un body tipo json con los datos que queremos crear
+      ID_COMPRA: aleatorio,
+      FEC_COMP: date.toISOString(),
+      VALOR_COMP: valor.value,
+      ID_CLIENTE: usuario,
+      ID_PLACA: id_placa.value,
+    }),
+  })
+    .then((res) => res.json())
+    .then(() => confirmar()); //recargamos la pagina
+
 }
 
-function confirmar(){
-  alertify.confirm("Compra exitosa");
-  modalCarros.hide();
+function confirmar() {
+  alertify.confirm("Correcto", "Compra exitosa", function () {
+    modalCarros.hide();
+    location.reload();
+  }, function () {
+    modalCarros.hide();
+    location.reload();
+  });
+
 }
 
 //fin tabla carros************************************************************************************************************
@@ -190,8 +205,3 @@ function setIcon(element, asc) {
   else element.addClass("desc");
 }
 //fin ordenar tablas
-window.onload = getCedulaURL();
-function getCedulaURL() {
-  usuario = new URLSearchParams(window.location.search).get('login');
-  document.getElementById("idCedula").innerText = "ID: " + usuario;
-}
