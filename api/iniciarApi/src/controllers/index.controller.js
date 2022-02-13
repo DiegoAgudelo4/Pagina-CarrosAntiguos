@@ -46,7 +46,7 @@ const getCarrosQuitandoCompra = async (req, res, next) => {
       var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
       cursor
         .collection("CARROS")
-        .find()
+        .find({ comprado: true })
         .forEach((value) => {
           //busca en la coleccion elegida por los parametros que quiero
           console.log(value); //muestra los resultados en la consola (mongo)
@@ -359,7 +359,7 @@ const createCompra = async (req, res) => {
     ID_PLACA
   ); //fin posgres
   //inicio mongo
-  MongoClient.connect(urlMongo, function (err, client) {
+  MongoClient.connect(urlMongo, function (err, client) { //crea la nueva compra
     //se conecta a mongo
     var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
     cursor.collection("COMPRAS").insertOne({
@@ -370,7 +370,12 @@ const createCompra = async (req, res) => {
       ID_CLIENTE: ID_CLIENTE,
       ID_PLACA: ID_PLACA,
     });
-    cursor.collection("CARROS").updateOne({ID_PLACA: ID_PLACA},{$set:{comprado: true}});
+  });
+  MongoClient.connect(urlMongo, function (err, client) { //cambia a estado true en comprado
+    //se conecta a mongo
+    var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
+    console.log("ID PLACA en nueva compra: " + ID_PLACA)
+    cursor.collection("CARROS").updateOne({ id_placa: ID_PLACA }, { $set: { comprado: true } });
   });
   console.log("**mongo**\n Datos creados correctamente");
 };
@@ -382,14 +387,90 @@ const deleteCompra = async (req, res) => {
   //res.json(`Carro ${id_compra} deleted Successfully`);
   //res.json(undefined);
   //mongo
-  MongoClient.connect(urlMongo, function (err, client) {
+  var placa;
+  MongoClient.connect(urlMongo, function (err, client) {//borra el registro en comprar
+    //se conecta a mongo
+    var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
+    cursor.collection("COMPRAS").find({ ID_COMPRA: parseInt(id_compra) }).forEach((value) => {
+      //busca en la coleccion elegida por los parametros que quiero
+      actualizarCompradoFalse(value.ID_PLACA, id_compra);
+    });
+  });
+  
+};
+function actualizarCompradoFalse(placa, id_compra){
+  MongoClient.connect(urlMongo, function (err, client) {//busca el documento a actualizar
+    //se conecta a mongo
+    var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
+    console.log("placa a modificar en carros: "+ placa)
+    cursor.collection("CARROS").updateOne({ id_placa: placa }, { $set: {comprado: false } });
+  });
+  MongoClient.connect(urlMongo, function (err, client) {//borra el registro en comprar
     //se conecta a mongo
     var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
     cursor.collection("COMPRAS").deleteOne({ ID_COMPRA: parseInt(id_compra) }); //borramos el registro  
   });
-};
-
+}
 //fin tabla compras
+//tabla eventos
+const getEventos = async (req, res) => {
+   //obtenemos la placa que nos pasan por parametro http
+  const response = await pool.query(
+    "SELECT * FROM evento" //hacemos la respectiva consulta
+  );
+  res.json(response.rows);
+  MongoClient.connect(urlMongo, function (err, client) {//borra el registro en comprar
+    //se conecta a mongo
+    console.log("***Eventos en mongo****\n")
+    var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
+    cursor.collection("EVENTOS").find().forEach((value) => {
+      //busca en la coleccion elegida por los parametros que quiero
+      console.log(value)
+    }); //borramos el registro  
+  });
+};
+//Fin tabla eventos********************************************************************
+
+const crearEventos =async (req, res) => {
+  const { id_evento, nombreEvento, id_placa } =req.body; //obtenemos los datos que recibe el api en json
+    await pool.query(
+      //hacemos la insercion
+      "INSERT INTO EVENTO(ID_EVENTO, NOMBRE_EVENTO, ID_PLACA) VALUES ($1, $2, $3)",
+      [id_evento, nombreEvento, id_placa]
+    );
+    console.log("***POSTGRES*** \n Evento creado correctamente")
+    MongoClient.connect(urlMongo, function (err, client) { //crea la nueva compra
+      //se conecta a mongo
+      var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
+      cursor.collection("EVENTOS").insertOne({
+        //inserta los datos a la colleccion elegida
+        ID_EVENTO: id_evento, 
+        NOMBRE_EVENTO: nombreEvento,
+        ID_PLACA: id_placa
+      });
+    });
+    console.log("***MONGO*** \n Evento creado correctamente")
+}
+const deleteEvento=async (req, res) => {
+  //postgres
+  const id_evento = req.params.id_evento; //obtenemos la placa que nos pasan por parametro http
+  await pool.query("DELETE FROM EVENTO where ID_EVENTO = $1", [id_evento]); //realizamos la respectiva consulta
+  //res.json(`Carro ${id_compra} deleted Successfully`);
+  //res.json(undefined);
+  //mongo
+  MongoClient.connect(urlMongo, function (err, client) {//borra el registro en comprar
+    //se conecta a mongo
+    var cursor = client.db("CarrosAntiguos"); //ingresa a la base de datos  que quiero
+    cursor.collection("EVENTOS").deleteOne({ ID_EVENTO: parseInt(id_evento) }); //borramos el registro  
+  });
+}
+const getEventosyDueño=async (req, res) => {
+  console.log(req.params.id_placa);
+  const id_placa = req.params.id_placa;
+  var respuestaEvento=await pool.query("SELECT  nombre_evento, COALESCE(cli.nombre_comp, 'No tiene') as nombre_comp, coalesce(cli.apellido_com, 'No tiene') as apellido_com, e.id_placa FROM  evento e left join (cliente cli inner join compra co on cli.id_cliente=co.id_cliente ) on co.id_placa=e.id_placa where e.id_placa=$1", [id_placa]);
+  res.json(respuestaEvento.rows);
+}
+
 
 module.exports = {
   getCarrosQuitandoCompra,
@@ -404,5 +485,9 @@ module.exports = {
   deleteCliente,
   getCompras,
   createCompra,
-  deleteCompra
+  deleteCompra,
+  getEventos,
+  crearEventos,
+  deleteEvento,
+  getEventosyDueño
 };

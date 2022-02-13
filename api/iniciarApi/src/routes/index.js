@@ -18,12 +18,11 @@ router.use(function(req, res, next) {
     next();
   });
 
-const { getCarrosQuitandoCompra, getEventoByPlaca, createCarro, updateCarro, deleteCarro,
-        getClientes,createCliente,updateCliente, deleteCliente, getCompras, createCompra, deleteCompra, getCarros} = require('../controllers/index.controller');
+const { getCarrosQuitandoCompra, createCarro, updateCarro, deleteCarro,
+        getClientes,createCliente,updateCliente, deleteCliente, getCompras, createCompra, deleteCompra, getCarros, getEventos, crearEventos, deleteEvento, getEventosyDueño} = require('../controllers/index.controller');
 
 router.get('/carros', getCarrosQuitandoCompra);
 router.get('/carros/venta', getCarros)
-router.get('/carros/evento/:placa', getEventoByPlaca);
 router.post('/carros/crear', createCarro);
 router.put('/carros/update/:placa', updateCarro)
 router.delete('/carros/delete/:placa', deleteCarro);
@@ -34,5 +33,9 @@ router.delete('/cliente/delete/:cedula', deleteCliente);
 router.get('/compras/:id_cliente', getCompras)
 router.post('/compras/crear', createCompra)
 router.delete('/compras/delete/:id_compra', deleteCompra)
+router.get('/vender/eventos', getEventos)
+router.post('/vender/eventos/crear', crearEventos)
+router.delete('/vender/eventos/delete/:id_evento', deleteEvento )
+router.get('/carros/evento/:id_placa', getEventosyDueño)
 
 module.exports = router;

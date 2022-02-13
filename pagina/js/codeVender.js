@@ -3,27 +3,37 @@ let url = "http://localhost:3000";
 let contenedor = document.querySelector("tbody");
 let resultados = "";
 
-function enviarForm(direccion) { //envía la cedula de la persona que está iniciada
+function enviarForm(direccion) {
+  //envía la cedula de la persona que está iniciada
   document.getElementById("input").value = usuario;
-  console.log("lo que se va a enviar :" + document.getElementById("input").value)
-  document
-    .querySelector("form")
-    .setAttribute("action", direccion);
+  console.log(
+    "lo que se va a enviar :" + document.getElementById("input").value
+  );
+  document.querySelector("form").setAttribute("action", direccion);
   document.getElementById("formulario").submit();
 }
 
 var modalCarros = new bootstrap.Modal(document.getElementById("modalCarros"));
+var modalEventos = new bootstrap.Modal(document.getElementById("modalEventos"));
 var formCarros = document.querySelector("form");
+
+var tablaCabecera = document.getElementById("theadEventos")
+var tabla = document.getElementById("tbodyEventos")
 var id_placa = document.getElementById("ID_PLACA");
 var marca = document.getElementById("MARCA");
 var modelo = document.getElementById("MODELO");
 var color = document.getElementById("COLOR");
 var valor = document.getElementById("VALOR");
+
+var nombreEvento = document.getElementById("NombreEvento");
+var id_placaEvento = document.getElementById("ID_PLACAEvento");
+
 var opcion = "";
 var usuario = "";
 
 //funcion para mostrar los resultados
 let mostrar = (carros) => {
+  resultados = "";
   //recibimos los datos
   carros.forEach((carros) => {
     //para cada documento, hacer esto || creamos la estructura de la fina con sus datos
@@ -39,6 +49,31 @@ let mostrar = (carros) => {
   });
   contenedor.innerHTML = resultados;
 };
+
+let mostrarEventos = (eventos) => {
+  resultados = "";
+  if (eventos.length > 0) {
+    tablaCabecera.innerHTML = `<tr class="text-center">
+                                  <th>ID</th>
+                                  <th>Nombre</th>
+                                  <th>Placa</th>
+                                  <th>Opcion</th>
+                                </tr>`;
+    eventos.forEach((eventos) => {
+      resultados += `<tr> 
+                      <td>${eventos.id_evento}</td>
+                      <td>${eventos.nombre_evento}</td>
+                      <td>${eventos.id_placa}</td>
+                      <td class="text-center"><a class="btnBorrarEvento btn btn-danger">Borrar</a></td>
+                    </tr>
+                    `;
+    });
+    tabla.innerHTML = resultados;
+  } else {
+    document.getElementById("non").innerHTML = "<h3 class='text-center'> No hay registro de eventos</h3>"
+  }
+};
+
 //pone comas
 function numeroConComas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -57,6 +92,11 @@ btnCrearCarro.addEventListener("click", () => {
   opcion = "crear";
 });
 
+
+fetch(url + "/vender/eventos") //siempre va hacer esto de primero
+  .then((response) => response.json()) //recibimos un formato json
+  .then((data) => mostrarEventos(data)) //lo enviamos a  la funcion mostrar
+  .catch((error) => console.log(error));
 
 //Procedimiento Mostrar
 fetch(url + "/carros/venta") //siempre va hacer esto de primero
@@ -93,7 +133,40 @@ on(document, "click", ".btnBorrar", (e) => {
     }
   );
 });
+fetch(url + "/vender/eventos") //siempre va hacer esto de primero
+  .then((response) => response.json()) //recibimos un formato json
+  .then((data) => mostrarEventos(data))
+  .catch((error) => console.log("error en fetch: " + error));
 
+function crearEvento() {
+  if (!nombreEvento.value.match(/[a-zA-Z\s]{3,20}$/)) {
+    alertify.error("Llene correctamente el campo Nombre");
+    return;
+  }
+  if (!id_placaEvento.value.match(/[a-zA-Z]{3}[0-9]{3}$/)) {
+    alertify.error("Llene correctamente el campo Nombre");
+    return;
+  }
+  console.log("lo que se va a enviar a crearEvento\n"+nombreEvento+"    "+id_placaEvento)
+  var aleatorio = Math.floor(Math.random() * (900000 - 100) + 100)
+  fetch(url + "/vender/eventos/crear", {
+    //ingresamos la direccion de la peticion
+    method: "POST", //elegimos el metodo
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      //enviamos un body tipo json con los datos que queremos crear
+      id_evento: aleatorio,
+      nombreEvento: nombreEvento.value,
+      id_placa: id_placaEvento.value
+    }),
+  }).catch((error) => console.log(error));
+  modalEventos.hide();
+  nombreEvento.value="";
+  id_placaEvento.value="";
+  location.reload();
+}
 //Procedimiento: Sube los datos al formulario para editar
 
 on(document, "click", ".btnEditar", (e) => {
@@ -120,10 +193,28 @@ function quitarReadOnly(id) {
   // Eliminamos la clase que hace que cambie el color
   $("#" + id).removeClass("readOnly");
 }
+on(document, "click", ".btnBorrarEvento", (e) => {
+  let fila = e.target.parentNode.parentNode; //extrae el numero de la fila clickeada
+  let id_evento = fila.firstElementChild.innerHTML; //extrae el parametro por el cual vamos a borrar "id"
+  alertify.confirm(
+    "Borrar","¿Seguro de eliminar el vento " + id_evento + "?", //pedimos confirmacion
+    function () {
+      console.log(url + "/vender/eventos/delete/" + id_evento);
+      fetch(url + "/vender/eventos/delete/" + id_evento, {
+        //ingresamos la direccion de la peticion
+        method: "DELETE", //seleccionamos el metodo
+      })
+       location.reload();//recargamos la pagina
+    },
+    function () {
+      alertify.error("Cancelado");
+    }
+  );
+});
 
 
 function validarRegistro() {
-  console.log("validando " + id_placa.value)
+  console.log("validando " + id_placa.value);
   if (!id_placa.value.match(/[a-zA-Z]{3}[0-9]{3}$/)) {
     alertify.error("Llene correctamente el campo placa");
     return;
@@ -144,8 +235,19 @@ function validarRegistro() {
     alertify.error("Llene correctamente el campo Valor");
     return;
   }
-  console.log("entró a validar en el Registro")
-  console.log("validado placa " + id_placa.value + " marca " + marca.value + " Modelo " + modelo.value + " color " + color.value + " valor " + valor.value);
+  console.log("entró a validar en el Registro");
+  console.log(
+    "validado placa " +
+    id_placa.value +
+    " marca " +
+    marca.value +
+    " Modelo " +
+    modelo.value +
+    " color " +
+    color.value +
+    " valor " +
+    valor.value
+  );
   fetch(url + "/carros/venta") //siempre va hacer esto de primero
     .then((response) => response.json()) //recibimos un formato json
     .then((data) => mostrarC(data))
@@ -159,7 +261,7 @@ let mostrarC = (carros) => {
       "placa: " + carros.id_placa + "    placa a validar: " + id_placa.value
     );
     if (id_placa.value == carros.id_placa) {
-      alertify.error("El carro ya existe en el sistema")
+      alertify.error("El carro ya existe en el sistema");
       existe = true;
       return;
     }
@@ -170,35 +272,52 @@ let mostrarC = (carros) => {
 };
 
 function guardarCarroNuevo() {
-  console.log("Guardando " + id_placa.value + " marca " + marca.value + " Modelo " + modelo.value + " color " + color.value + " valor " + valor.value);
-  fetch(url + "/carros/crear", { //ingresamos la direccion de la peticion
+  console.log(
+    "Guardando " +
+    id_placa.value +
+    " marca " +
+    marca.value +
+    " Modelo " +
+    modelo.value +
+    " color " +
+    color.value +
+    " valor " +
+    valor.value
+  );
+  fetch(url + "/carros/crear", {
+    //ingresamos la direccion de la peticion
     method: "POST", //elegimos el metodo
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ //enviamos un body tipo json con los datos que queremos crear
+    body: JSON.stringify({
+      //enviamos un body tipo json con los datos que queremos crear
       id_placa: id_placa.value,
       marca: marca.value,
       modelo: modelo.value,
       color: color.value,
       valor: parseInt(valor.value),
-    })
+    }),
   }).catch((error) => console.log(error));
-  alertify.confirm("Completado", "Carro publicado correctamente", function () {
-    modalCarros.hide();
-    location.reload();
-  }, function () {
-    modalCarros.hide();
-    location.reload();
-  });
-
+  alertify.confirm(
+    "Completado",
+    "Carro publicado correctamente",
+    function () {
+      modalCarros.hide();
+      location.reload();
+    },
+    function () {
+      modalCarros.hide();
+      location.reload();
+    }
+  );
 }
 
 //Procedimiento para Crear y Editar
 function show() {
   console.log("submit sucessful");
   if (opcion == "crear") {
-    console.log("opcion Crear")
+    console.log("opcion Crear");
     validarRegistro();
     return;
   }
@@ -277,6 +396,6 @@ function setIcon(element, asc) {
 //fin ordenar tablas
 window.onload = getCedulaURL();
 function getCedulaURL() {
-  usuario = new URLSearchParams(window.location.search).get('login');
+  usuario = new URLSearchParams(window.location.search).get("login");
   document.getElementById("idCedula").innerText = "ID: " + usuario;
 }

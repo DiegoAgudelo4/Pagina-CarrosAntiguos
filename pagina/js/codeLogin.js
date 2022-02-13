@@ -14,6 +14,7 @@
     var verificar = document.getElementById("CedulaLogin").value;
     console.log(clientes);
     console.log("verificando");
+    var existe= false;
     clientes.forEach((clientes) => {
       console.log(
         "Cedula: " + clientes.id_cliente + "    verificar: " + verificar
@@ -23,12 +24,14 @@
           .querySelector("form")
           .setAttribute("action", "Carros.html");
         document.getElementById("formulario").submit();
-        return true;
+        existe=true;
+        return;
       }
     });
-    alertify.error(
-      "La cedula ingresada no existe en la base de datos, por favor registrala."
-    );
-    console.log("no se encontró la cedula");
-
+    if(!existe){
+      alertify.error(
+        "La cedula ingresada no existe en la base de datos, por favor registrala."
+      );
+      console.log("no se encontró la cedula");
+    }
   };

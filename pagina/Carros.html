@@ -50,20 +50,12 @@
   <div class="Reemplace">
     <main>
       <div class="publicaciones-carros">
-        <div class="container mt-4 shadow-lg p-3 mb-5 bg-body rounded">
+        <div class="container mt-4 shadow-lg p-3 mb-5 bg-body rounded" id="non">
           <div class="container" align="center">
-            <h3 >Publicaciones de nuestros clientes, super ofertas del 0% DCTO!!!! </h3> <a  href="#eventos" type="button"> <input type="button" value="Eventos"></a>
+            <h3 style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">Publicaciones de nuestros clientes, super ofertas del 0% DCTO!!!! </h3> <a  href="#eventos" type="button"> <input type="button" value="Eventos"></a>
           </div>
           <table id="tablaCarros" class="table mt-2 table-bordered table-striped">
             <thead>
-              <tr class="text-center">
-                <th>Placa</th>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Color</th>
-                <th>Valor</th>
-                <th>Opcion</th>
-              </tr>
             </thead>
             <tbody>
             </tbody>
@@ -72,22 +64,16 @@
       </div>
     </main>
     <div class="container mt-4 shadow-lg p-3 mb-5 bg-body rounded text-center" id="eventos">
-        <label for="ID_PLACA" class="col-form-label">Busca por nombre del evento </label>
+      <h3 style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">Eventos en los que participan o han participado los carros antiguos </h3> 
+        <label for="ID_PLACA" class="col-form-label" >Busca por nombre del evento </label>
         <br>
-        <input type="text">
-        <button  class="btn btn-primary" > buscar</button>
+        <input type="text" class="form-control" pattern="[a-zA-Z]{3}[0-9]{3}" id="PlacaEvento" maxlength="6" required><br>
+        <button  class="btn btn-primary" onclick="buscarEvento()" > buscar</button>
+        <div id="nonEvento"></div>
         <table id="tablaCarros" class="table mt-2 table-bordered table-striped">
-          <thead>
-            <tr class="text-center cabeceraTabla" hidden>
-              <th>Placa</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Color</th>
-              <th>Valor</th>
-              <th>Opcion</th>
-            </tr>
+          <thead id="theadEventos">
           </thead>
-          <tbody>
+          <tbody id="tbodyEventos">
           </tbody>
         </table>
     </div>

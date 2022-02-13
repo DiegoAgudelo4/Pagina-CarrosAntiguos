@@ -51,8 +51,9 @@
     <main>
       <div class="publicaciones-carros">
         <div class="container mt-4 shadow-lg p-3 mb-5 bg-body rounded">
+          <h3 style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;"> Ingresa un carro cualquiera que no exista en el sistema </h3> 
           <button id="btnCrearCarro" type="button" class="btn btn-primary" data-bs-toggle="modal"
-            data-bs-target="#modalCarros">Ingresar Carro</button>
+            data-bs-target="#modalCarros">Ingresar Carro</button> <a  href="#eventos" type="button"> <button type="button" class="btn btn-primary">Eventos</button></a>
           <table id="tablaUsers" class="table mt-2 table-bordered table-striped">
             <thead>
               <tr class="text-center">
@@ -69,6 +70,21 @@
           </table>
         </div>
       </div>
+      <div class="eventos" id="eventos">
+        <div class="container mt-4 shadow-lg p-3 mb-5 bg-body rounded">
+          <h3 style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;"> Eventos de nuestros clientes con sus carritos</h3> 
+          <button id="btnCrearEvento" type="button" class="btn btn-primary" data-bs-toggle="modal"
+            data-bs-target="#modalEventos">Crear evento</button>
+            <div id="non"></div>
+          <table id="tablaeventos" class="table mt-2 table-bordered table-striped">
+            <thead id="theadEventos">
+            </thead>
+            <tbody id="tbodyEventos">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </main>
     <form id="formulario">
       <input id="input" name="login" type="text" hidden >
@@ -114,6 +130,32 @@
         </div>
       </div>
     </div>
+    <div id="modalEventos" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="exampleModalLabel">Agrega un nuevo evento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="form">
+              <div class="mb-3">
+                <label for="NombreEvento" class="col-form-label">Nombre del evento</label>
+                <input type="text" class="form-control" id="NombreEvento" maxlength="20" required>
+              </div>
+              <div class="mb-3">
+                <label for="ID_PLACAEvento" class="col-form-label">Placa</label>
+                <input type="text" pattern="[a-zA-Z]{3}[0-9]{3}" maxlength="6" minlength="6" class="form-control" id="ID_PLACAEvento" required
+                  placeholder="Ejemplo 'asd123'">
+              </div>
+          </div>
+          <div class="modal-footer" style="display: flex;">
+            <button class="btn btn-secondary" data-bs-dismiss="modal" style="margin-top: -25px;">Cancelar</button>
+            <input type="button" onclick="crearEvento()" value="Guardar">
+          </div>
+          </form>
+        </div>
+      </div>
   </div>
 </body><!-- Option 1: Bootstrap Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"

@@ -1,52 +1,70 @@
 //Definición de variables
 let url = "http://localhost:3000";
-let contenedor = document.querySelector("tbody");
-let resultados = "";
-
-
 
 function enviarForm(direccion) {
   document.getElementById("input").value = usuario;
-  console.log("lo que se va a enviar :" + document.getElementById("input").value)
-  document
-    .querySelector("form")
-    .setAttribute("action", direccion);
+  console.log(
+    "lo que se va a enviar :" + document.getElementById("input").value
+  );
+  document.querySelector("form").setAttribute("action", direccion);
   document.getElementById("formulario").submit();
 }
 
 let modalCarros = new bootstrap.Modal(document.getElementById("modalCarros"));
+let cabeceraTabla = document.querySelector("thead");
+let contenedor = document.querySelector("tbody");
+let resultados = "";
 let formCarros = document.querySelector("form");
 let id_placa = document.getElementById("ID_PLACA");
 let marca = document.getElementById("MARCA");
 let modelo = document.getElementById("MODELO");
 let color = document.getElementById("COLOR");
+let id_placaEvento = document.getElementById("PlacaEvento");
 let valor = document.getElementById("VALOR");
+
+let mensajenoevento=document.getElementById("nonEvento");
+let tbodyEventos=document.getElementById("tbodyEventos")
+let theadEventos = document.getElementById("theadEventos");
+
 var opcion = "";
 var usuario = "";
 
 window.onload = getCedulaURL();
 function getCedulaURL() {
-  usuario = new URLSearchParams(window.location.search).get('login');
+  usuario = new URLSearchParams(window.location.search).get("login");
   document.getElementById("idCedula").innerText = "ID: " + usuario;
 }
 //funcion para mostrar los resultados
 let mostrar = (carros) => {
   //recibimos los datos
-  console.log("Carros: " + carros)
-  carros.forEach((carros) => {
-    //para cada documento, hacer esto || creamos la estructura de la fina con sus datos 
-    resultados += `<tr> 
-        <td>${carros.id_placa}</td>
-        <td>${carros.marca}</td>
-        <td>${carros.modelo}</td>
-        <td>${carros.color}</td>
-        <td>${numeroConComas(carros.valor)}</td>
-        <td class="text-center"><a class="btnComprar btn btn-primary">Comprar</a></td>
-   </tr>
-`;
-  })
-  //lo enviamos a  la funcion mostrar
-  contenedor.innerHTML = resultados;
+  if (carros.length > 0) {
+    cabeceraTabla.innerHTML = `<tr class="text-center">
+    <th>Placa</th>
+    <th>Marca</th>
+    <th>Modelo</th>
+    <th>Color</th>
+    <th>Valor</th>
+    <th>Opcion</th>
+  </tr>`;
+    console.log("Carros: " + carros);
+    carros.forEach((carros) => {
+      //para cada documento, hacer esto || creamos la estructura de la fina con sus datos
+      resultados += `<tr> 
+          <td>${carros.id_placa}</td>
+          <td>${carros.marca}</td>
+          <td>${carros.modelo}</td>
+          <td>${carros.color}</td>
+          <td>${numeroConComas(carros.valor)}</td>
+          <td class="text-center"><a class="btnComprar btn btn-primary">Comprar</a></td>
+     </tr>
+  `;
+    });
+    //lo enviamos a  la funcion mostrar
+    contenedor.innerHTML = resultados;
+  } else {
+    document.getElementById("non").innerHTML =
+      "<h3 class='text-center'> No hay registro de carros</h3>";
+  }
 };
 //pone comas
 function numeroConComas(x) {
@@ -122,13 +140,12 @@ function quitarReadOnly(id) {
   $("#" + id).removeClass("readOnly");
 }
 
-
 function comprar() {
-  var aleatorio = Math.floor(Math.random() * (900000 - 100) + 100)
+  var aleatorio = Math.floor(Math.random() * (900000 - 100) + 100);
   //verificamos que se seleccionó crear
   console.log("OPCION CREAR Carro" + valor.value);
-  let date = new Date()
-  console.log("fecha: " + date.toISOString())
+  let date = new Date();
+  console.log("fecha: " + date.toISOString());
   fetch(url + "/compras/crear", {
     //ingresamos la direccion de la peticion
     method: "POST", //elegimos el metodo
@@ -146,19 +163,79 @@ function comprar() {
   })
     .then((res) => res.json())
     .then(() => confirmar()); //recargamos la pagina
-
 }
-
 function confirmar() {
-  alertify.confirm("Correcto", "Compra exitosa", function () {
-    modalCarros.hide();
-    location.reload();
-  }, function () {
-    modalCarros.hide();
-    location.reload();
-  });
-
+  alertify.confirm(
+    "Correcto",
+    "Compra exitosa",
+    function () {
+      modalCarros.hide();
+      location.reload();
+    },
+    function () {
+      modalCarros.hide();
+      location.reload();
+    }
+  );
 }
+
+function buscarEvento() {
+  if (!id_placaEvento.value.match(/[a-zA-Z]{3}[0-9]{3}$/)) {
+    alertify.error("Llene correctamente el campo Nombre");
+    return;
+  }
+  fetch(url + "/vender/eventos") //siempre va hacer esto de primero
+    .then((response) => response.json()) //recibimos un formato json
+    .then((data) => verificarEvento(data)) //lo enviamos a  la funcion mostrar
+    .catch((error) => console.log(error));
+}
+let verificarEvento = (eventos) => {
+  console.log("entra a verificar evento");
+  var existe = false;
+  eventos.forEach((eventos) => {
+    console.log(eventos);
+    console.log(
+      "eventos.id_placa  " + eventos.id_placa + " ==?" + id_placaEvento.value
+    );
+    if (eventos.id_placa == id_placaEvento.value) {
+      existe = true;
+      mensajenoevento.innerHTML = "";
+      return;
+    }
+  });
+  if (!existe) {
+    tbodyEventos.innerHTML="";
+    theadEventos.innerHTML="";
+    mensajenoevento.innerHTML =
+      "<br><h3 class='text-center'> No hay registro de eventos</h3>";
+    return;
+  }
+  fetch(url + "/carros/evento/" + id_placaEvento.value) //siempre va hacer esto de primero
+    .then((response) => response.json()) //recibimos un formato json
+    .then((data) => mostrarTabla(data)) //lo enviamos a  la funcion mostrar
+    .catch((error) => console.log(error));
+};
+
+let mostrarTabla = (eventos) => {
+  var tabla = "";
+  theadEventos.innerHTML = `<tr class="text-center">
+                              <th>Nombre del evento</th>
+                              <th>Nombre del dueño</th>
+                              <th>Apellido del dueño</th>
+                              <th>Placa del carro</th>
+                            </tr>`;
+  console.log("Eventos: " + eventos);
+  eventos.forEach((eventos) => {
+    //para cada documento, hacer esto || creamos la estructura de la fina con sus datos
+    tabla += `<tr> 
+                    <td>${eventos.nombre_evento}</td>
+                    <td>${eventos.nombre_comp}</td>
+                    <td>${eventos.apellido_com}</td>
+                    <td>${eventos.id_placa}</td>
+              </tr>`;
+  });
+  tbodyEventos.innerHTML=tabla;
+};
 
 //fin tabla carros************************************************************************************************************
 
