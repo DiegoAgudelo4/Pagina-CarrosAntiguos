@@ -17,7 +17,6 @@ function getCedulaURL() {
   usuario = new URLSearchParams(window.location.search).get('login');
   document.getElementById("idCedula").innerText = "ID: " + usuario;
 }
-
 let mostrar = (compra) => {
   //recibimos los datos
   if (compra.length > 0) {
